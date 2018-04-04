@@ -32,6 +32,8 @@
   "homepage": "https://github.com/aragon/aragon-dev-cli#readme",
   "dependencies": {
     "chalk": "^2.1.0",
+    "deepmerge": "^2.1.0",
+    "dot-prop": "^4.2.0",
     "eth-ens-namehash": "^2.0.0",
     "ethereum-ens": "https://github.com/Arachnid/ensjs.git",
     "execa": "^0.10.0",

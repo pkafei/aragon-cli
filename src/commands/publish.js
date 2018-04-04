@@ -134,9 +134,10 @@ exports.handler = async function ({
   // Globals
   cwd,
   ethRpc,
-  keyfile,
   module,
   apm: apmOptions,
+  network,
+  config,
 
   // Arguments
   contract,
@@ -148,13 +149,17 @@ exports.handler = async function ({
   skipArtifact,
   skipContract
 }) {
-  // TODO: Clean up
-  const web3 = new Web3(keyfile.rpc ? keyfile.rpc : ethRpc)
-  const privateKey = keyfile.key ? keyfile.key : key
+  const web3 = new Web3(
+    config.get(`${network}.rpc`, ethRpc)
+  )
+  const privateKey = config.get(`${network}.key`, key)
 
-  apmOptions.ensRegistry = !apmOptions.ensRegistry ? keyfile.ens : apmOptions.ensRegistry
-
-  const apm = await APM(web3, apmOptions)
+  const apm = await APM(
+    web3,
+    Object.assign(
+      apmOptions, { ensRegistry: config.get(`${network}.ens`) }
+    )
+  )
 
   const tasks = new TaskList([
     // TODO: Move this in to own file for reuse

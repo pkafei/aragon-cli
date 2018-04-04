@@ -30,12 +30,18 @@ exports.handler = async function ({
   address,
   noConfirm
 }) {
-  const web3 = new Web3(keyfile.rpc ? keyfile.rpc : ethRpc)
-  const privateKey = keyfile.key ? keyfile.key : key
+  const web3 = new Web3(
+    config.get(`${network}.rpc`, ethRpc)
+  )
+  const privateKey = config.get(`${network}.key`, key)
 
-  apmOptions.ensRegistry = !apmOptions.ensRegistry ? keyfile.ens : apmOptions.ensRegistry
+  const apm = await APM(
+    web3,
+    Object.assign(
+      apmOptions, { ensRegistry: config.get(`${network}.ens`) }
+    )
+  )
 
-  const apm = await APM(web3, apmOptions)
   const acl = ACL(web3)
 
   if (!module || !Object.keys(module).length) {

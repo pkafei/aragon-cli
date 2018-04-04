@@ -1,16 +1,23 @@
 const Web3 = require('web3')
 const findUp = require('find-up')
 const { MessageError } = require('../errors')
-const apm = require('../apm')
+const APM = require('../apm')
 
 exports.command = 'versions'
 
 exports.describe = 'List all versions of the package'
 
 exports.handler = async function ({ reporter, module, bump, cwd, keyfile, ethRpc, apm: apmOptions }) {
-  const web3 = new Web3(keyfile.rpc ? keyfile.rpc : ethRpc)
+  const web3 = new Web3(
+    config.get(`${network}.rpc`, ethRpc)
+  )
 
-  apmOptions.ensRegistry = !apmOptions.ensRegistry ? keyfile.ens : apmOptions.ensRegistry
+  const apm = await APM(
+    web3,
+    Object.assign(
+      apmOptions, { ensRegistry: config.get(`${network}.ens`) }
+    )
+  )
 
   const moduleLocation = await findUp('arapp.json', { cwd })
   if (!moduleLocation) {
@@ -18,7 +25,7 @@ exports.handler = async function ({ reporter, module, bump, cwd, keyfile, ethRpc
   'ERR_NOT_A_PROJECT')
   }
 
-  return apm(web3, apmOptions).getAllVersions(module.appName)
+  return apm.getAllVersions(module.appName)
     .then((versions) => {
       reporter.info(`${module.appName} has ${versions.length} published versions`)
       versions.forEach((version) => {
