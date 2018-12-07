@@ -7,7 +7,7 @@ const chalk = require('chalk')
 const getRepoTask = require('./utils/getRepoTask')
 const encodeInitPayload = require('./utils/encodeInitPayload')
 const upgrade = require('./upgrade')
-const { getContract, ANY_ENTITY } = require('../../util')
+const { getContract, ANY_ENTITY, NO_MANAGER } = require('../../util')
 const listrOpts = require('../../helpers/listr-options')
 
 const setPermissions = async (web3, sender, aclAddress, permissions) => {
@@ -16,8 +16,8 @@ const setPermissions = async (web3, sender, aclAddress, permissions) => {
     aclAddress
   )
   return Promise.all(
-    permissions.map(([who, where, what]) =>
-      acl.methods.createPermission(who, where, what, who).send({
+    permissions.map(([who, where, what, manager]) =>
+      acl.methods.createPermission(who, where, what, manager).send({
         from: sender,
         gasLimit: 1e6,
       })
@@ -135,6 +135,7 @@ exports.task = async ({
             ANY_ENTITY,
             ctx.appAddress,
             role.bytes,
+            NO_MANAGER,
           ])
 
           return setPermissions(
